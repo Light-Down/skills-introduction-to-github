@@ -4,7 +4,7 @@ Eine Asana-ähnliche Aufgabenverwaltungs-App für persönliche Aufgaben, Klasse 
 
 ## 🚀 Features
 
-- ✅ Aufgaben hinzufügen, bearbeiten und löschen
+- ✅ Aufgaben hinzufügen und löschen
 - 📁 Kategorisierung: Persönlich, Klasse, Business
 - ✔️ Aufgaben als erledigt markieren
 - 🔍 Filter nach Kategorien und Status

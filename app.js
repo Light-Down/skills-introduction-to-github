@@ -3,6 +3,7 @@ class TaskManager {
     constructor() {
         this.tasks = this.loadTasks();
         this.currentFilter = 'all';
+        this.taskIdCounter = 0;
         this.init();
     }
 
@@ -29,6 +30,22 @@ class TaskManager {
                 this.setFilter(e.target.dataset.filter);
             });
         });
+
+        // Event delegation for task list
+        const taskList = document.getElementById('taskList');
+        taskList.addEventListener('change', (e) => {
+            if (e.target.classList.contains('task-checkbox')) {
+                const id = parseInt(e.target.id.replace('checkbox-', ''));
+                this.toggleTask(id);
+            }
+        });
+        
+        taskList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('task-delete')) {
+                const id = parseInt(e.target.id.replace('delete-', ''));
+                this.deleteTask(id);
+            }
+        });
     }
 
     addTask() {
@@ -42,7 +59,7 @@ class TaskManager {
         }
 
         const task = {
-            id: Date.now(),
+            id: Date.now() + this.taskIdCounter++,
             text: taskText,
             category: taskCategory.value,
             completed: false,
@@ -125,20 +142,6 @@ class TaskManager {
         emptyState.style.display = 'none';
 
         taskList.innerHTML = filteredTasks.map(task => this.createTaskHTML(task)).join('');
-
-        // Add event listeners to newly created elements
-        filteredTasks.forEach(task => {
-            const checkbox = document.getElementById(`checkbox-${task.id}`);
-            const deleteBtn = document.getElementById(`delete-${task.id}`);
-
-            if (checkbox) {
-                checkbox.addEventListener('change', () => this.toggleTask(task.id));
-            }
-
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', () => this.deleteTask(task.id));
-            }
-        });
     }
 
     createTaskHTML(task) {
@@ -179,12 +182,24 @@ class TaskManager {
     }
 
     saveTasks() {
-        localStorage.setItem('tasks', JSON.stringify(this.tasks));
+        try {
+            localStorage.setItem('tasks', JSON.stringify(this.tasks));
+        } catch (e) {
+            console.error('Failed to save tasks to localStorage:', e);
+            this.showNotification('Fehler beim Speichern der Aufgaben', 'error');
+        }
     }
 
     loadTasks() {
-        const saved = localStorage.getItem('tasks');
-        return saved ? JSON.parse(saved) : [];
+        try {
+            const saved = localStorage.getItem('tasks');
+            if (!saved) return [];
+            const parsed = JSON.parse(saved);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            console.error('Failed to load tasks from localStorage:', e);
+            return [];
+        }
     }
 
     escapeHtml(text) {
